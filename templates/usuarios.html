@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Usuarios</h2>
+
+<form method="POST" class="form-calendario">
+
+    <input name="usuario" placeholder="Usuario" required>
+    <input type="password" name="clave" placeholder="Contraseña" required>
+
+    <select name="rol">
+        <option value="empleado">Empleado</option>
+        <option value="admin">Administrador</option>
+    </select>
+
+    <button>Crear usuario</button>
+
+</form>
+
+<p style="color:red;">{{ error }}</p>
+
+<table class="tabla-clientes">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Usuario</th>
+            <th>Rol</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for u in usuarios %}
+        <tr>
+            <td>{{ u.id }}</td>
+            <td>{{ u.usuario }}</td>
+            <td>{{ u.rol }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
