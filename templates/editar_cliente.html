@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Editar Cliente</h2>
+
+<form method="POST">
+    <input name="representante" value="{{ c.representante }}">
+    <input name="razon" value="{{ c.razon }}" required>
+    <input name="nit" value="{{ c.nit }}" required>
+    <input name="contacto" value="{{ c.contacto }}">
+    <input name="telefono" value="{{ c.telefono }}">
+    <input name="correo" value="{{ c.correo }}">
+    <input name="direccion" value="{{ c.direccion }}">
+
+    <button>Actualizar</button>
+</form>
+
+{% endblock %}

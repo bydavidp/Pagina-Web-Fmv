@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Calendario</h2>
+
+<form method="POST">
+    <input type="date" name="fecha" required>
+    <input type="time" name="hora" required>
+    <input name="titulo" placeholder="Título" required>
+    <button>Agregar</button>
+    <body class="calendario"></body>
+</form>
+
+<table>
+    <tr>
+        <th>Fecha</th>
+        <th>Hora</th>
+        <th>Título</th>
+        <th>Estado</th>
+    </tr>
+
+    {% for e in eventos %}
+    <tr>
+        <td>{{ e.fecha }}</td>
+        <td>{{ e.hora }}</td>
+        <td>{{ e.titulo }}</td>
+        <td>{{ e.estado }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

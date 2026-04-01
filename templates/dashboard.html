@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Dashboard</h2>
+
+<div class="cards">
+    <div class="card">
+        <h3>Clientes</h3>
+        <p>{{ total_clientes }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Eventos</h3>
+        <p>{{ total_eventos }}</p>
+    </div>
+
+    <body class="dashboard"></body>
+
+    <div class="card">
+        <h3>Pendientes</h3>
+        <p>{{ pendientes }}</p>
+    </div>
+<canvas id="grafica"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+
+</div>
+{% endblock %}

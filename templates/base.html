@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico/favicon.ico') }}">
+    <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>FMV | Sistema de Control</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico/favicon.ico') }}">
+</head>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    document.body.style.opacity = 0;
+    setTimeout(() => {
+        document.body.style.transition = "opacity 0.5s";
+        document.body.style.opacity = 1;
+    }, 100);
+});
+</script>
+
+<script>
+window.onload = () => {
+    document.body.style.opacity = 1;
+};
+</script>
+
+<script>
+particlesJS("particles-js", {
+  particles: {
+    number: { value: 50 },
+    color: { value: "#e60000" },
+    shape: { type: "circle" },
+    opacity: { value: 0.2 },
+    size: { value: 3 },
+    move: { enable: true, speed: 1 }
+  }
+});
+</script>
+
+<script>
+document.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", e => {
+        if (link.href.includes(window.location.origin)) {
+            e.preventDefault();
+            document.body.style.opacity = 0;
+
+            setTimeout(() => {
+                window.location = link.href;
+            }, 300);
+        }
+    });
+});
+
+window.onload = () => {
+    document.body.style.opacity = 1;
+};
+</script>
+
+<script>
+function showToast(msg) {
+    let toast = document.getElementById("toast");
+    toast.innerText = msg;
+    toast.style.opacity = 1;
+
+    setTimeout(() => {
+        toast.style.opacity = 0;
+    }, 3000);
+}
+</script>
+
+<div id="loader">
+    <div class="loader-content">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="logo">
+        <div class="spinner"></div>
+        <p>Cargando sistema...</p>
+    </div>
+</div>
+
+<script>
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        document.getElementById("loader").style.opacity = "0";
+        setTimeout(() => {
+            document.getElementById("loader").style.display = "none";
+        }, 500);
+    }, 100); // tiempo visible del loader
+});
+</script>
+
+<body>
+
+    <script>
+    showToast("Bienvenido al sistema FMV 🔥");
+    </script>
+    <div id="toast"></div>
+    <div id="particles-js"></div>
+
+
+{% if session.get("user") %}
+<div class="container">
+
+    <aside class="sidebar">
+        <h2>FMV</h2>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/clientes">Clientes</a>
+        <a href="/calendario">Calendario</a>
+        <a href="/logout">Salir</a>
+    </aside>
+
+    <main class="content">
+{% endif %}
+
+        {% block content %}{% endblock %}
+
+{% if session.get("user") %}
+    </main>
+</div>
+{% endif %}
+
+</body>
+</html>
