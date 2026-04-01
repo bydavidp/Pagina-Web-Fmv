@@ -101,13 +101,19 @@ window.addEventListener("load", () => {
 {% if session.get("user") %}
 <div class="container">
 
-    <aside class="sidebar">
-        <h2>FMV</h2>
-        <a href="/dashboard">Dashboard</a>
-        <a href="/clientes">Clientes</a>
-        <a href="/calendario">Calendario</a>
-        <a href="/logout">Salir</a>
-    </aside>
+   <aside class="sidebar">
+    <h2>FMV</h2>
+
+    <a href="/dashboard">Dashboard</a>
+    <a href="/clientes">Clientes</a>
+    <a href="/calendario">Calendario</a>
+
+    {% if session.get("rol") == "admin" %}
+    <a href="/usuarios">Usuarios</a>
+    {% endif %}
+
+    <a href="/logout">Salir</a>
+</aside>
 
     <main class="content">
 {% endif %}
