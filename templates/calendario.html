@@ -3,29 +3,75 @@
 {% block content %}
 <h2>Calendario</h2>
 
-<form method="POST">
+<form method="POST" class="form-calendario">
+
+    <!-- Fecha -->
     <input type="date" name="fecha" required>
+
+    <!-- Hora -->
     <input type="time" name="hora" required>
-    <input name="titulo" placeholder="Título" required>
+
+    <!-- Descripción -->
+    <input name="titulo" placeholder="Descripción">
+
+    <!-- CLIENTES -->
+    <select name="cliente_id" required>
+        <option value="">Seleccionar cliente</option>
+        {% for c in clientes %}
+            <option value="{{ c.id }}">{{ c.razon }}</option>
+        {% endfor %}
+    </select>
+
+<!-- 👇 AQUÍ PEGAS ESTO -->
+    <select name="empleado_id" required>
+        <option value="">Asignar empleado</option>
+        {% for e in empleados %}
+            <option value="{{ e.id }}">{{ e.usuario }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- TIPO -->
+    <select name="tipo" required>
+        <option value="FUMIGACION">Fumigación</option>
+        <option value="VISITA">Visita Técnica</option>
+    </select>
+
+    <!-- VALOR -->
+    <input type="number" name="valor" placeholder="Valor" required>
+
     <button>Agregar</button>
-    <body class="calendario"></body>
+
 </form>
 
-<table>
-    <tr>
-        <th>Fecha</th>
-        <th>Hora</th>
-        <th>Título</th>
-        <th>Estado</th>
-    </tr>
+<!-- TABLA -->
+<table class="tabla-clientes">
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Cliente</th>
+            <th>Empleado</th>
+            <th>Dirección</th>
+            <th>Teléfono</th>
+            <th>Tipo</th>
+            <th>Valor</th>
+        </tr>
+    </thead>
 
-    {% for e in eventos %}
-    <tr>
-        <td>{{ e.fecha }}</td>
-        <td>{{ e.hora }}</td>
-        <td>{{ e.titulo }}</td>
-        <td>{{ e.estado }}</td>
-    </tr>
-    {% endfor %}
+    <tbody>
+        {% for e in eventos %}
+        <tr>
+            <td>{{ e.fecha }}</td>
+            <td>{{ e.hora }}</td>
+            <td>{{ e.razon }}</td>
+            <td>{{ e.direccion }}</td>
+            <td>{{ e.telefono }}</td>
+            <td>{{ e.empleado }}</td>
+            <td>{{ e.tipo }}</td>
+            <td>${{ e.valor }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
+
 {% endblock %}
