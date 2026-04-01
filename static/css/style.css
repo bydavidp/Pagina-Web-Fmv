@@ -520,3 +520,110 @@ a {
 .paginacion a.activo {
     background: #e60000;
 }
+
+.form-calendario {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+select, input {
+    padding: 10px;
+    border-radius: 5px;
+}
+
+/* SELECT PREMIUM */
+select {
+    width: 100%;
+    padding: 12px;
+    background: #111;
+    color: white;
+    border: 2px solid #333;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: 0.3s;
+    appearance: none;
+}
+
+/* HOVER */
+select:hover {
+    border-color: #e60000;
+}
+
+/* FOCUS */
+select:focus {
+    border-color: #e60000;
+    box-shadow: 0 0 8px rgba(230, 0, 0, 0.5);
+}
+
+/* CONTENEDOR SELECT */
+.form-calendario select {
+    background-image: url("data:image/svg+xml;utf8,<svg fill='red' height='20' viewBox='0 0 20 20' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M5 7l5 5 5-5H5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 15px;
+}
+
+.form-calendario input {
+    padding: 12px;
+    background: #111;
+    color: white;
+    border: 2px solid #333;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.form-calendario input:focus {
+    border-color: #e60000;
+    box-shadow: 0 0 8px rgba(230, 0, 0, 0.5);
+}
+
+.form-calendario button {
+    background: linear-gradient(135deg, #e60000, #990000);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: bold;
+}
+
+.form-calendario button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(230, 0, 0, 0.4);
+}
+
+.form-calendario {
+    display: grid;
+    gap: 12px;
+    background: #0d0d0d;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #222;
+    margin-bottom: 20px;
+}
+
+.formato-print {
+    background: white;
+    color: black;
+    padding: 40px;
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .formato-print, .formato-print * {
+        visibility: visible;
+    }
+
+    .formato-print {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+    }
+}
