@@ -1,7 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Clientes</h2>
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+    
+    <h2>Clientes</h2>
+
+    <a href="/exportar_clientes">
+        <button type="button">📊 Exportar CSV</button>
+    </a>
+
+</div>
 
 <input type="text" id="buscador" placeholder="Buscar cliente..." onkeyup="filtrarTabla()">
 
@@ -20,9 +29,7 @@
 
 <p style="color:red;">{{ error }}</p>
 
-<a href="/exportar_clientes">
-    <button type="button">Exportar CSV</button>
-</a>
+
 
 
 <!-- TABLA -->
@@ -56,7 +63,8 @@
                 <button class="btn-editar">✏️</button>
             </a>
 
-            <a href="/eliminar_cliente/{{ c.id }}">
+            <a href="/eliminar_cliente/{{c.id}}"
+                onclick="return confirm('¿Seguro que deseas eliminar este cliente?')">
                 <button class="btn-eliminar">🗑</button>
             </a>
         </td>
@@ -72,21 +80,7 @@
     <a href="?page=3">3</a>
 </div>
 
-<div class="paginacion">
-    {% if page > 1 %}
-        <a href="?page={{ page - 1 }}">⬅ Anterior</a>
-    {% endif %}
 
-    {% for p in range(1, total_paginas + 1) %}
-        <a href="?page={{ p }}" class="{% if p == page %}activo{% endif %}">
-            {{ p }}
-        </a>
-    {% endfor %}
-
-    {% if page < total_paginas %}
-        <a href="?page={{ page + 1 }}">Siguiente ➡</a>
-    {% endif %}
-</div>
 
 <script>
 function filtrarTabla() {
@@ -101,22 +95,6 @@ function filtrarTabla() {
 }
 </script>
 
-<div class="paginacion">
 
-    {% if page > 1 %}
-        <a href="/clientes?page={{ page - 1 }}">⬅ Anterior</a>
-    {% endif %}
-
-    {% for p in range(1, total_paginas + 1) %}
-        <a href="/clientes?page={{ p }}" class="{% if p == page %}activo{% endif %}">
-            {{ p }}
-        </a>
-    {% endfor %}
-
-    {% if page < total_paginas %}
-        <a href="/clientes?page={{ page + 1 }}">Siguiente ➡</a>
-    {% endif %}
-
-</div>
 
 {% endblock %}
