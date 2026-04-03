@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, session, Response
 from datetime import datetime
-import sqlite3, hashlib, os, csv
+import sqlite3, hashlib, os
 
 app = Flask(__name__)
 app.secret_key = "fmv_secret_key"
@@ -22,6 +22,8 @@ def subir():
 
     return render_template("subir.html")
 
+
+
 # ---------- USUARIOS ----------
 
 @app.route("/usuarios", methods=["GET", "POST"])
@@ -40,23 +42,47 @@ def usuarios():
         usuario = request.form["usuario"]
         clave = request.form["clave"]
         rol = request.form["rol"]
+        nombre = request.form["nombre"]
+        cedula = request.form["cedula"]
+        telefono = request.form["telefono"]
 
-        if not usuario or not clave:
-            error = "Usuario y contraseña obligatorios"
-        else:
-            db.execute("""
-                INSERT INTO usuarios (usuario, clave, rol)
-                VALUES (?, ?, ?)
-            """, (
-                usuario,
-                hash_pwd(clave),
-                rol
-            ))
-            db.commit()
+        db.execute("""
+        INSERT INTO usuarios (usuario, clave, rol, nombre, cedula, telefono)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (
+        usuario,
+        hash_pwd(clave),    
+        rol,
+        nombre,     # 🆕 guarda nombre completo
+        cedula,     # 🆕 guarda cédula
+        telefono    # 🆕 guarda teléfono
+    ))
 
     usuarios = db.execute("SELECT * FROM usuarios").fetchall()
 
     return render_template("usuarios.html", usuarios=usuarios, error=error)
+
+
+
+
+# ---------- ORDEN DE SERVICIO ----------
+
+@app.route("/orden/<int:id>")
+def orden(id):
+    db = get_db()
+
+    data = db.execute("""
+    SELECT c.*, cli.razon, cli.nit, cli.direccion, cli.telefono,
+           u.nombre as tecnico, u.cedula
+    FROM calendario c
+    JOIN clientes cli ON c.cliente_id = cli.id
+    JOIN usuarios u ON c.empleado_id = u.id
+    WHERE c.id=?
+    """, (id,)).fetchone()
+
+    return render_template("orden.html", d=data)
+
+    
 
 # ---------- DB ----------
 def get_db():
@@ -67,9 +93,11 @@ def get_db():
 def hash_pwd(p):
     return hashlib.sha256(p.encode()).hexdigest()
 
+
+
 # ---------- LOGIN ----------
 @app.route("/", methods=["GET", "POST"])
-def login():
+def login():    
     error = ""
 
     if request.method == "POST":
@@ -97,18 +125,51 @@ def dashboard():
 
     db = get_db()
 
-    total_clientes = db.execute("SELECT COUNT(*) FROM clientes").fetchone()[0]
-    total_eventos = db.execute("SELECT COUNT(*) FROM calendario").fetchone()[0]
-    pendientes = db.execute(
-        "SELECT COUNT(*) FROM calendario WHERE estado='PENDIENTE'"
-    ).fetchone()[0]
 
-    return render_template(
-        "dashboard.html",
+    mes_actual = datetime.now().strftime("%Y-%m")
+
+    ingresos_mes = db.execute("""
+        SELECT SUM(valor) as total
+        FROM calendario
+        WHERE strftime('%Y-%m', fecha) = ?
+    """, (mes_actual,)).fetchone()
+
+    total_mes = ingresos_mes["total"] if ingresos_mes["total"] else 0
+
+    # 🔥 HISTORIAL
+    historial = db.execute("""
+        SELECT strftime('%Y-%m', fecha) as mes, SUM(valor) as total
+        FROM calendario
+        WHERE realizado = 'REALIZADO'
+        GROUP BY mes
+        ORDER BY mes DESC
+    """).fetchall()
+
+    total_clientes = db.execute("SELECT COUNT(*) FROM clientes").fetchone()[0]
+
+    total_servicios = db.execute("SELECT COUNT(*) FROM calendario").fetchone()[0]
+
+    total_ingresos = db.execute("SELECT SUM(valor) FROM calendario").fetchone()[0] or 0
+
+    realizados = db.execute("SELECT COUNT(*) FROM calendario WHERE realizado='REALIZADO'").fetchone()[0]
+
+    pendientes = db.execute("SELECT COUNT(*) FROM calendario WHERE realizado='PENDIENTE'").fetchone()[0]
+
+    
+
+    
+
+    return render_template("dashboard.html",
         total_clientes=total_clientes,
-        total_eventos=total_eventos,
-        pendientes=pendientes
+        total_servicios=total_servicios,
+        total_ingresos=total_ingresos,
+        realizados=realizados,
+        pendientes=pendientes,
+        total_mes=total_mes,
+        historial=historial
     )
+
+# ---------- CONTEXTO ----------
 
 @app.context_processor
 def inject_active():
@@ -127,6 +188,46 @@ def eliminar_cliente(id):
 
     return redirect("/clientes")
 
+
+@app.route("/api/cambiar_estado/<int:id>", methods=["POST"])
+def cambiar_estado_api(id):
+    db = get_db()
+
+    evento = db.execute(
+        "SELECT realizado FROM calendario WHERE id=?", 
+        (id,)
+    ).fetchone()
+
+    # 🔄 Cambiar estado
+    nuevo_estado = "REALIZADO" if evento["realizado"] == "PENDIENTE" else "PENDIENTE"
+
+    db.execute(
+        "UPDATE calendario SET realizado=? WHERE id=?", 
+        (nuevo_estado, id)
+    )
+    db.commit()
+
+    # 📤 Respuesta JSON
+    return {"estado": nuevo_estado}
+
+# ---------- CAMBIAR ESTADO EVENTO ----------
+
+@app.route("/cambiar_estado/<int:id>")
+def cambiar_estado(id):
+    db = get_db()
+
+    # 🔍 Obtener estado actual
+    evento = db.execute("SELECT realizado FROM calendario WHERE id=?", (id,)).fetchone()
+
+    # 🔄 Cambiar estado
+    nuevo_estado = "REALIZADO" if evento["realizado"] == "PENDIENTE" else "PENDIENTE"
+
+    # 💾 Guardar cambio
+    db.execute("UPDATE calendario SET realizado=? WHERE id=?", (nuevo_estado, id))
+    db.commit()
+
+    return redirect("/calendario")
+
 # ---------- EDITAR CLIENTE ----------
 
 @app.route("/editar_cliente/<int:id>", methods=["GET", "POST"])
@@ -136,10 +237,12 @@ def editar_cliente(id):
 
     db = get_db()
 
+    cliente = db.execute("SELECT * FROM clientes WHERE id=?", (id,)).fetchone()
+
     if request.method == "POST":
         db.execute("""
-            UPDATE clientes SET
-            representante=?, razon=?, nit=?, contacto=?, telefono=?, correo=?, direccion=?
+            UPDATE clientes
+            SET representante=?, razon=?, nit=?, contacto=?, telefono=?, correo=?, direccion=?
             WHERE id=?
         """, (
             request.form["representante"],
@@ -154,9 +257,8 @@ def editar_cliente(id):
         db.commit()
         return redirect("/clientes")
 
-    cliente = db.execute("SELECT * FROM clientes WHERE id=?", (id,)).fetchone()
-
-    return render_template("editar_cliente.html", c=cliente)
+    # 👇 IMPORTANTE
+    return render_template("editar_cliente.html", cliente=cliente)
 
 # ---------- EXPORTAR CLIENTES ----------
 
@@ -313,6 +415,68 @@ def formato():
         observaciones=observaciones
     )
 
+
+# ---------- EXPORTAR CALENDARIO ----------
+@app.route("/exportar_calendario")
+def exportar_calendario():
+    if "user" not in session:
+        return redirect("/")
+
+    db = get_db()
+
+    eventos = db.execute("""
+        SELECT calendario.fecha, calendario.hora,
+               clientes.razon, clientes.direccion, clientes.telefono,
+               usuarios.usuario AS empleado,
+               calendario.tipo, calendario.valor
+        FROM calendario
+        LEFT JOIN clientes ON calendario.cliente_id = clientes.id
+        LEFT JOIN usuarios ON calendario.empleado_id = usuarios.id
+    """).fetchall()
+
+    def generar():
+        yield "Fecha,Hora,Cliente,Dirección,Teléfono,Empleado,Tipo,Valor\n"
+
+        for e in eventos:
+            yield f"{e['fecha']},{e['hora']},{e['razon']},{e['direccion']},{e['telefono']},{e['empleado']},{e['tipo']},{e['valor']}\n"
+
+    return Response(
+        generar(),
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment;filename=calendario.csv"}
+    )
+
+# ---------- ORDENES DE SERVICIO ----------
+@app.route("/ordenes")
+def ordenes():
+    if "user" not in session:
+        return redirect("/")
+
+    db = get_db()
+
+    datos = db.execute("""
+        SELECT c.id, c.fecha, cl.razon, c.tipo, c.realizado
+        FROM calendario c
+        JOIN clientes cl ON c.cliente_id = cl.id
+        ORDER BY c.id DESC
+    """).fetchall()
+
+    return render_template("ordenes.html", datos=datos)
+
+# ---------- LISTADO DE ORDENES DE SERVICIO ----------
+@app.route("/ordenes")
+def listar_ordenes():
+    db = get_db()
+
+    datos = db.execute("""
+        SELECT c.id, c.fecha, cl.razon, c.tipo, c.realizado
+        FROM calendario c
+        JOIN clientes cl ON c.cliente_id = cl.id
+        ORDER BY c.id DESC
+    """).fetchall()
+
+    return render_template("ordenes.html", datos=datos)
+
 # ---------- CALENDARIO ----------
 @app.route("/calendario", methods=["GET", "POST"])
 def calendario():
@@ -325,8 +489,8 @@ def calendario():
     if request.method == "POST":
         db.execute("""
             INSERT INTO calendario 
-            (fecha, hora, titulo, estado, cliente_id, tipo, valor, empleado_id)
-            VALUES (?, ?, ?, 'PENDIENTE', ?, ?, ?, ?)
+            (fecha, hora, titulo, estado, cliente_id, tipo, valor, empleado_id, realizado)
+            VALUES (?, ?, ?, 'PENDIENTE', ?, ?, ?, ?, ?)
         """, (
             request.form["fecha"],
             request.form["hora"],
@@ -334,18 +498,20 @@ def calendario():
             request.form["cliente_id"],
             request.form["tipo"],
             request.form["valor"],
-            request.form["empleado_id"]
+            request.form["empleado_id"],
+            request.form.get("realizado")
         ))
         db.commit()
 
     # 🔥 TRAER EVENTOS + CLIENTE + EMPLEADO
     eventos = db.execute("""
         SELECT calendario.*, 
-               clientes.razon, clientes.telefono, clientes.direccion,
-               usuarios.usuario AS empleado
+            clientes.razon, clientes.telefono, clientes.direccion,
+            usuarios.usuario AS empleado
         FROM calendario
         LEFT JOIN clientes ON calendario.cliente_id = clientes.id
         LEFT JOIN usuarios ON calendario.empleado_id = usuarios.id
+        ORDER BY date(fecha) DESC, time(hora) DESC
     """).fetchall()
 
     # 🔥 TRAER CLIENTES
@@ -364,6 +530,45 @@ def calendario():
 def logout():
     session.clear()
     return redirect("/")
+
+# ---------- EDITAR USUARIO ----------          
+
+@app.route("/editar_usuario/<int:id>", methods=["GET", "POST"])
+def editar_usuario(id):
+    db = get_db()
+
+    # 🔁 si envía formulario (guardar cambios)
+    if request.method == "POST":
+        usuario = request.form["usuario"]
+        nombre = request.form["nombre"]
+        cedula = request.form["cedula"]
+        telefono = request.form["telefono"]
+        rol = request.form["rol"]
+
+        db.execute("""
+        UPDATE usuarios 
+        SET usuario=?, nombre=?, cedula=?, telefono=?, rol=?
+        WHERE id=?
+        """, (usuario, nombre, cedula, telefono, rol, id))
+
+        db.commit()
+        return redirect("/usuarios")
+
+    # 🔍 obtener usuario actual
+    u = db.execute("SELECT * FROM usuarios WHERE id=?", (id,)).fetchone()
+
+    return render_template("editar_usuario.html", u=u)
+
+# ---------- ELIMINAR USUARIO ----------
+
+@app.route("/eliminar_usuario/<int:id>")
+def eliminar_usuario(id):
+    db = get_db()  # conecta a la base de datos
+
+    db.execute("DELETE FROM usuarios WHERE id=?", (id,))  # elimina usuario
+    db.commit()  # guarda cambios
+
+    return redirect("/usuarios")  # vuelve a la página
 
 # ---------- RUN ----------
 if __name__ == "__main__":
