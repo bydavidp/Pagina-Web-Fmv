@@ -66,6 +66,15 @@ def init_db():
     WHERE NOT EXISTS (SELECT 1 FROM consecutivos)
     """)
 
+    # CREAR USUARIO ADMIN POR DEFECTO SI NO EXISTE
+    cursor.execute("SELECT COUNT(*) FROM usuarios")
+    if cursor.fetchone()[0] == 0:
+        admin_password = hash_pwd("admin123")
+        cursor.execute("""
+        INSERT INTO usuarios (usuario, clave, rol, nombre, cedula, telefono)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """, ("admin", admin_password, "admin", "Administrador", "0000000000", "0000000000"))
+
     conn.commit()
     conn.close()
 
