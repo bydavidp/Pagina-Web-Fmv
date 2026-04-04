@@ -613,8 +613,9 @@ def eliminar_usuario(id):
     db.commit()  # guarda cambios
 
     return redirect("/usuarios")  # vuelve a la página
+init_db()  # inicializa la base de datos (crea tablas si no existen)
 
 # ---------- RUN ----------
 if __name__ == "__main__":
     app.run()
-    init_db()  # inicializa la base de datos (crea tablas si no existen)
+  
