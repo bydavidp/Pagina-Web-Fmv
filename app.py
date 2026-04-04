@@ -22,6 +22,54 @@ def subir():
 
     return render_template("subir.html")
 
+# Para que funcione
+
+def init_db():
+    conn = sqlite3.connect(DB)
+    cursor = conn.cursor()
+
+    # TABLA USUARIOS
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS usuarios (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        usuario TEXT,
+        clave TEXT,
+        rol TEXT,
+        nombre TEXT,
+        cedula TEXT,
+        telefono TEXT
+    )
+    """)
+
+    # TABLA CLIENTES
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS clientes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        representante TEXT,
+        razon TEXT,
+        nit TEXT,
+        contacto TEXT,
+        telefono TEXT,
+        correo TEXT,
+        direccion TEXT
+    )
+    """)
+
+    # TABLA CALENDARIO
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS calendario (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        cliente_id INTEGER,
+        empleado_id INTEGER,
+        fecha TEXT,
+        valor REAL,
+        realizado TEXT
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
 
 
 # ---------- USUARIOS ----------
