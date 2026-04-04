@@ -11,18 +11,15 @@ def init_db():
     cursor = conn.cursor()
 
     # TABLA USUARIOS
-    
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS calendario (
+    CREATE TABLE IF NOT EXISTS usuarios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        cliente_id INTEGER,
-        empleado_id INTEGER,
-        fecha TEXT,
-        hora TEXT,
-        titulo TEXT,
-        tipo TEXT,
-        valor REAL,
-        realizado TEXT
+        usuario TEXT UNIQUE,
+        clave TEXT,
+        rol TEXT,
+        nombre TEXT,
+        cedula TEXT,
+        telefono TEXT
     )
     """)
 
@@ -47,12 +44,15 @@ def init_db():
         cliente_id INTEGER,
         empleado_id INTEGER,
         fecha TEXT,
+        hora TEXT,
+        titulo TEXT,
+        tipo TEXT,
         valor REAL,
         realizado TEXT
     )
     """)
 
-        # TABLA CONSECUTIVOS
+    # TABLA CONSECUTIVOS
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS consecutivos (
         numero INTEGER
@@ -631,10 +631,11 @@ def eliminar_usuario(id):
 
     return redirect("/usuarios")  # vuelve a la página
 
-# ---------- ACTUALIZAR DB (AGREGAR CAMPOS) ----------J
-
-if os.path.exists(DB):
-    os.remove(DB)
+# ---------- INICIALIZAR DB ----------
+# Solo elimina la DB en desarrollo, no en producción (Render)
+if os.getenv("ENV") != "production":
+    if os.path.exists(DB):
+        os.remove(DB)
 
 init_db()  # inicializa la base de datos (crea tablas si no existen)
 
