@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="bienvenida">
+👋 Bienvenido {{ session.get("user") }}
+</h1>
+<p class="subtitulo">Sistema de gestión de servicios y clientes</p>
+
+
+<div class="cards">
+    <h3 style="margin-top:30px;">📊 Informe mensual</h3>
+
+<table class="tabla-clientes">
+    <tr>
+        <th>Mes</th>
+        <th>Ingresos</th>
+    </tr>
+
+    {% for h in historial %}
+    <tr>
+        <td>{{ h.mes }}</td>
+        <td>${{ h.total }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+    <div class="card">
+        <h3>Clientes</h3>
+        <p>{{ total_clientes }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Servicios</h3>
+        <p>{{ total_servicios }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Ingresos</h3>
+        <p>${{ total_ingresos }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Realizados</h3>
+        <p>{{ realizados }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Pendientes</h3>
+        <p>{{ pendientes }}</p>
+    </div>
+    
+    <div class="card">
+        <h3>Ingresos del Mes</h3>
+        <p>${{ total_mes }}</p>
+    </div>
+
+</div>
+{% endblock %}

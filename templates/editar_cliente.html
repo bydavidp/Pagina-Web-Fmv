@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Editar Cliente</h2>
+
+<form method="POST" class="form-calendario">
+
+    <div class="grid-form">
+
+        <div>
+            <label>Representante</label>
+            <input name="representante" value="{{ cliente.representante }}">
+        </div>
+
+        <div>
+            <label>Razón Social *</label>
+            <input name="razon" value="{{ cliente.razon }}" required>
+        </div>
+
+        <div>
+            <label>NIT *</label>
+            <input name="nit" value="{{ cliente.nit }}" required>
+        </div>
+
+        <div>
+            <label>Contacto</label>
+            <input name="contacto" value="{{ cliente.contacto }}">
+        </div>
+
+        <div>
+            <label>Teléfono</label>
+            <input name="telefono" value="{{ cliente.telefono }}">
+        </div>
+
+        <div>
+            <label>Correo</label>
+            <input name="correo" value="{{ cliente.correo }}">
+        </div>
+
+        <div style="grid-column: span 2;">
+            <label>Dirección</label>
+            <input name="direccion" value="{{ cliente.direccion }}">
+        </div>
+
+    </div>
+
+    <button>Actualizar</button>
+
+</form>
+
+{% endblock %}

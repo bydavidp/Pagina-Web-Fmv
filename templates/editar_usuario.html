@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>✏️ Editar Usuario</h2>
+
+<form method="POST" class="form-lista">
+
+    <label>Usuario</label>
+    <input name="usuario" value="{{ u.usuario }}" required>
+
+    <label>Nombre completo</label>
+    <input name="nombre" value="{{ u.nombre }}" required>
+
+    <label>Cédula</label>
+    <input name="cedula" value="{{ u.cedula }}" required>
+
+    <label>Teléfono</label>
+    <input name="telefono" value="{{ u.telefono }}">
+
+    <label>Rol</label>
+    <select name="rol">
+        <option value="admin" {% if u.rol=="admin" %}selected{% endif %}>Admin</option>
+        <option value="empleado" {% if u.rol=="empleado" %}selected{% endif %}>Empleado</option>
+    </select>
+
+    <button class="btn-guardar">Guardar cambios</button>
+
+</form>
+
+{% endblock %}

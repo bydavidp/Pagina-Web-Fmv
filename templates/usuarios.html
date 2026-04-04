@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Usuarios</h2>
+<input type="text" id="buscadorUsuarios" placeholder="Buscar usuario..." onkeyup="filtrarUsuarios()">
+
+<form method="POST" class="form-calendario">
+
+    <input name="usuario" placeholder="Usuario" required>
+    <input type="password" name="clave" placeholder="Contraseña" required>
+    <input name="nombre" placeholder="Nombre completo" required>
+    <input name="cedula" placeholder="Cédula" required>
+    <input name="telefono" placeholder="Teléfono">
+    
+
+    <select name="rol">
+        <option value="empleado">Tecnico</option>
+        <option value="admin">Administrador</option>
+    </select>
+
+    <button>Crear usuario</button>
+
+</form>
+
+<p style="color:red;">{{ error }}</p>
+
+<table class="tabla-clientes">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Usuario</th>
+            <th>Nombre</th>
+            <th>Cédula</th>
+            <th>Teléfono</th>
+            <th>Rol</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+
+    <tbody>
+    {% for u in usuarios %}
+    <tr>
+        <td>{{ u.id }}</td>
+        <td>{{ u.usuario }}</td>
+        <td>{{ u.nombre }}</td>
+        <td>{{ u.cedula }}</td>
+        <td>{{ u.telefono }}</td>
+        <td>{{ u.rol }}</td>
+        <td>
+    <a href="/eliminar_usuario/{{ u.id }}" onclick="return confirm('¿Eliminar usuario?')">
+            <button class="btn-eliminar">Eliminar</button>
+        </a>
+    </td>
+    <td>
+    <a href="/editar_usuario/{{ u.id }}">
+            <button class="btn-editar">Editar</button>
+        </a>
+    </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<script>
+function filtrarUsuarios() {
+    let input = document.getElementById("buscadorUsuarios");
+    let filtro = input.value.toLowerCase();
+    let filas = document.querySelectorAll(".tabla-usuarios tbody tr");
+
+    filas.forEach(fila => {
+        let texto = fila.innerText.toLowerCase();
+        fila.style.display = texto.includes(filtro) ? "" : "none";
+    });
+}
+</script>
+
+{% endblock %}
