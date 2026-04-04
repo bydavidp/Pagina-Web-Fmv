@@ -6,24 +6,6 @@ app = Flask(__name__)
 app.secret_key = "fmv_secret_key"
 
 DB = "clientes_web.db"
-
-
-UPLOAD_FOLDER = "static/uploads"
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-
-@app.route("/subir", methods=["GET", "POST"])
-def subir():
-    if request.method == "POST":
-        file = request.files["archivo"]
-        if file:
-            path = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
-            file.save(path)
-            return "Archivo subido"
-
-    return render_template("subir.html")
-
-# Para que funcione
-
 def init_db():
     conn = sqlite3.connect(DB)
     cursor = conn.cursor()
@@ -69,6 +51,20 @@ def init_db():
 
     conn.commit()
     conn.close()
+
+UPLOAD_FOLDER = "static/uploads"
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
+@app.route("/subir", methods=["GET", "POST"])
+def subir():
+    if request.method == "POST":
+        file = request.files["archivo"]
+        if file:
+            path = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
+            file.save(path)
+            return "Archivo subido"
+
+    return render_template("subir.html")
 
 
 
@@ -621,3 +617,4 @@ def eliminar_usuario(id):
 # ---------- RUN ----------
 if __name__ == "__main__":
     app.run()
+    init_db()  # inicializa la base de datos (crea tablas si no existen)
