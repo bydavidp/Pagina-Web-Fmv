@@ -49,6 +49,20 @@ def init_db():
     )
     """)
 
+        # TABLA CONSECUTIVOS
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS consecutivos (
+        numero INTEGER
+    )
+    """)
+
+    # insertar valor inicial si no existe
+    cursor.execute("""
+    INSERT INTO consecutivos (numero)
+    SELECT 1
+    WHERE NOT EXISTS (SELECT 1 FROM consecutivos)
+    """)
+
     conn.commit()
     conn.close()
 
