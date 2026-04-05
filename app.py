@@ -559,7 +559,7 @@ def calendario():
     if request.method == "POST":
         db.execute("""
             INSERT INTO calendario 
-            (fecha, hora, titulo, estado, cliente_id, tipo, valor, empleado_id, realizado)
+            (fecha, hora, titulo, cliente_id, tipo, valor, empleado_id, realizado)
             VALUES (?, ?, ?, 'PENDIENTE', ?, ?, ?, ?, ?)
         """, (
             request.form["fecha"],
